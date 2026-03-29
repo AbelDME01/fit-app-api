@@ -79,9 +79,15 @@ export class WorkoutsService {
         order_index: index,
       }));
 
-      await this.supabaseService.client
+      const { error: exercisesError } = await this.supabaseService.client
         .from('workout_exercises')
         .insert(workoutExercises);
+
+      if (exercisesError) {
+        // Rollback: delete the workout
+        await this.supabaseService.client.from('workouts').delete().eq('id', workout.id);
+        throw new InternalServerErrorException('Error creating workout exercises');
+      }
     }
 
     return this.findOne(userId, workout.id);
@@ -142,28 +148,45 @@ export class WorkoutsService {
   }
 
   async getWeeklyStats(userId: string) {
-    const oneWeekAgo = new Date();
-    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    const now = new Date();
+    const oneWeekAgo = new Date(now);
+    oneWeekAgo.setDate(now.getDate() - 7);
+    const twoWeeksAgo = new Date(now);
+    twoWeeksAgo.setDate(now.getDate() - 14);
 
-    const { data, error } = await this.supabaseService.client
-      .from('workouts')
-      .select('id, duration_minutes, completed_at')
-      .eq('user_id', userId)
-      .not('completed_at', 'is', null)
-      .gte('completed_at', oneWeekAgo.toISOString());
+    const [{ data: currentData, error: currentError }, { data: previousData, error: previousError }] =
+      await Promise.all([
+        this.supabaseService.client
+          .from('workouts')
+          .select('id, duration_minutes, completed_at')
+          .eq('user_id', userId)
+          .not('completed_at', 'is', null)
+          .gte('completed_at', oneWeekAgo.toISOString()),
+        this.supabaseService.client
+          .from('workouts')
+          .select('id, duration_minutes, completed_at')
+          .eq('user_id', userId)
+          .not('completed_at', 'is', null)
+          .gte('completed_at', twoWeeksAgo.toISOString())
+          .lt('completed_at', oneWeekAgo.toISOString()),
+      ]);
 
-    if (error) {
+    if (currentError) {
       return { totalSessions: 0, totalTime: 0, weeklyChange: 0, timeChange: 0 };
     }
 
-    const totalSessions = data.length;
-    const totalTime = data.reduce((acc, w) => acc + (w.duration_minutes || 0), 0) / 60;
+    const totalSessions = currentData.length;
+    const totalTime = currentData.reduce((acc, w) => acc + (w.duration_minutes || 0), 0) / 60;
+
+    const previousSessions = previousError ? 0 : (previousData?.length ?? 0);
+    const previousMinutes = previousError ? 0 : (previousData ?? []).reduce((acc, w) => acc + (w.duration_minutes || 0), 0);
+    const currentMinutes = currentData.reduce((acc, w) => acc + (w.duration_minutes || 0), 0);
 
     return {
       totalSessions,
       totalTime: Math.round(totalTime * 10) / 10,
-      weeklyChange: 2, // TODO: Calculate from previous week
-      timeChange: 45, // TODO: Calculate from previous week
+      weeklyChange: totalSessions - previousSessions,
+      timeChange: Math.round(currentMinutes - previousMinutes),
     };
   }
 }
