@@ -61,7 +61,7 @@ export class AuthService {
   async getUser(userId: string) {
     const { data, error } = await this.supabaseService.client
       .from('profiles')
-      .select('*')
+      .select('id, email, full_name, username, avatar_url, bio, weight_kg, height_cm, date_of_birth, fitness_level, fitness_goals, created_at, updated_at')
       .eq('id', userId)
       .single();
 
