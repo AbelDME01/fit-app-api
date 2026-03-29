@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { SupabaseService } from '../../database/supabase.service';
 import { CreateRecordDto } from './dto/create-record.dto';
 
@@ -82,7 +82,7 @@ export class RecordsService {
       .single();
 
     if (error) {
-      throw new Error('Error creating record');
+      throw new InternalServerErrorException('Error creating record');
     }
 
     return data;

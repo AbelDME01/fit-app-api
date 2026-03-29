@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { SupabaseService } from '../../database/supabase.service';
 import { CreateGoalDto } from './dto/create-goal.dto';
 import { UpdateGoalDto } from './dto/update-goal.dto';
@@ -130,7 +130,7 @@ export class ProgressService {
       .single();
 
     if (error) {
-      throw new Error('Error creating goal');
+      throw new InternalServerErrorException('Error creating goal');
     }
 
     return data;
