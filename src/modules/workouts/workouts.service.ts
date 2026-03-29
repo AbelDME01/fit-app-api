@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { SupabaseService } from '../../database/supabase.service';
 import { CreateWorkoutDto } from './dto/create-workout.dto';
 import { UpdateWorkoutDto } from './dto/update-workout.dto';
@@ -68,7 +68,7 @@ export class WorkoutsService {
       .single();
 
     if (workoutError) {
-      throw new Error('Error creating workout');
+      throw new InternalServerErrorException('Error creating workout');
     }
 
     // Create workout exercises

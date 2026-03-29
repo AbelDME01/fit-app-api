@@ -28,7 +28,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
           ? exceptionResponse
           : (exceptionResponse as any).message || exception.message;
     } else if (exception instanceof Error) {
-      message = exception.message;
+      message = process.env.NODE_ENV === 'production' ? 'Internal server error' : exception.message;
     }
 
     // Log error
