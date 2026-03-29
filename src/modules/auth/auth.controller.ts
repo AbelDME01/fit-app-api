@@ -3,6 +3,7 @@ import {
   Post,
   Body,
   Get,
+  Headers,
   UseGuards,
   HttpCode,
   HttpStatus,
@@ -48,8 +49,9 @@ export class AuthController {
   @ApiOperation({ summary: 'Logout current user' })
   @ApiResponse({ status: 200, description: 'Logout successful' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async logout(@CurrentUser('sub') userId: string) {
-    return this.authService.logout(userId);
+  async logout(@Headers('authorization') authHeader: string, @CurrentUser('sub') userId: string) {
+    const accessToken = authHeader?.split(' ')[1];
+    return this.authService.logout(userId, accessToken);
   }
 
   @Get('me')

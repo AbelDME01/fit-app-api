@@ -53,8 +53,9 @@ export class AuthService {
     };
   }
 
-  async logout(userId: string) {
-    await this.supabaseService.client.auth.signOut();
+  async logout(userId: string, accessToken: string) {
+    const client = this.supabaseService.getClientWithAuth(accessToken);
+    await client.auth.signOut();
     return { message: 'Logged out successfully' };
   }
 
