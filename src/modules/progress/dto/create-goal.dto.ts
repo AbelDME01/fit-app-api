@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsOptional } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsISO8601 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateGoalDto {
@@ -20,8 +20,8 @@ export class CreateGoalDto {
   @IsString()
   unit?: string;
 
-  @ApiPropertyOptional({ example: '2024-12-31' })
+  @ApiPropertyOptional({ example: '2024-12-31T00:00:00.000Z' })
   @IsOptional()
-  @IsString()
+  @IsISO8601()
   deadline?: string;
 }

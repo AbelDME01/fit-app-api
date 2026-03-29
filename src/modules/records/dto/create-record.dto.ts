@@ -1,4 +1,4 @@
-import { IsNumber, IsString, IsEnum } from 'class-validator';
+import { IsNumber, IsISO8601, IsEnum } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateRecordDto {
@@ -14,7 +14,7 @@ export class CreateRecordDto {
   @IsEnum(['kg', 'reps', 'seconds'])
   unit: string;
 
-  @ApiProperty({ example: '2024-01-15' })
-  @IsString()
+  @ApiProperty({ example: '2024-01-15T00:00:00.000Z' })
+  @IsISO8601()
   achieved_at: string;
 }

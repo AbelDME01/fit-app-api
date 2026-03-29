@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsOptional, IsArray, ValidateNested } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsArray, ValidateNested, IsISO8601 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -45,7 +45,7 @@ export class CreateWorkoutDto {
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsString()
+  @IsISO8601()
   scheduled_date?: string;
 
   @ApiPropertyOptional()

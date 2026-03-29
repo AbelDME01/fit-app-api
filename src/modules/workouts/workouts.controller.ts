@@ -13,6 +13,7 @@ import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger'
 import { WorkoutsService } from './workouts.service';
 import { CreateWorkoutDto } from './dto/create-workout.dto';
 import { UpdateWorkoutDto } from './dto/update-workout.dto';
+import { CompleteWorkoutDto } from './dto/complete-workout.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
@@ -81,8 +82,8 @@ export class WorkoutsController {
   async complete(
     @CurrentUser('sub') userId: string,
     @Param('id') id: string,
-    @Body('durationMinutes') durationMinutes: number,
+    @Body() completeWorkoutDto: CompleteWorkoutDto,
   ) {
-    return this.workoutsService.complete(userId, id, durationMinutes);
+    return this.workoutsService.complete(userId, id, completeWorkoutDto.durationMinutes);
   }
 }
